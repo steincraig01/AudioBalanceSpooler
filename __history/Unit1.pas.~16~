@@ -1,0 +1,75 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MMDevAPI, activex, Vcl.StdCtrls, strutils,
+  Vcl.ExtCtrls, unit3, System.Notification;
+
+type
+  TForm1 = class(TForm)
+    VolumeMonitorTimer: TTimer;
+    NotificationCenter1: TNotificationCenter;
+    procedure ShowNotification;
+    procedure FormCreate(Sender: TObject);
+    procedure VolumeMonitorTimerTimer(Sender: TObject);
+  private
+    { Private declarations }
+  public
+  endpointVolume: IAudioEndpointVolume;
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.ShowNotification;
+var
+  MyNotification: TNotification;
+begin
+  MyNotification := NotificationCenter1.CreateNotification;
+  try
+    MyNotification.Name := 'VAG';
+    MyNotification.Title := 'Volume Alert Warning';
+    MyNotification.AlertBody := 'The volume is too loud and will piss off the neighbours. Automatically adjusting now...';
+    NotificationCenter1.PresentNotification(MyNotification);
+  finally
+    MyNotification.Free;
+  end;
+end;
+
+
+procedure TForm1.VolumeMonitorTimerTimer(Sender: TObject);
+var
+  NewVolume: single;
+  CurrentVolume: single;
+begin
+  if endpointVolume = nil then Exit;
+  endpointVolume.GetMasterVolumeLevelScaler(CurrentVolume);
+  If CurrentVolume >= 0.7 then
+    begin
+      NewVolume := 0.5;
+      endpointVolume.SetMasterVolumeLevelScalar(NewVolume, nil);
+      ShowNotification;
+    end;
+end;
+
+procedure TForm1.FormCreate(Sender: TObject);
+var
+  deviceEnumerator: IMMDeviceEnumerator;
+  defaultDevice: IMMDevice;
+begin
+  application.ShowMainForm := False;
+  EndpointVolume:=nil;
+  CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_INPROC_SERVER, IID_IMMDeviceEnumerator, deviceEnumerator);
+  deviceEnumerator.GetDefaultAudioEndpoint(eRender, eConsole, defaultDevice);
+  defaultDevice.Activate(IID_IAudioEndpointVolume, CLSCTX_INPROC_SERVER, nil, endpointVolume);
+  VolumeMonitorTimer.Enabled := true;
+end;
+
+end.
