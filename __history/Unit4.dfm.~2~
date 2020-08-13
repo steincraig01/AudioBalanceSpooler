@@ -1,0 +1,65 @@
+object Form4: TForm4
+  Left = 0
+  Top = 0
+  Caption = 'SoundDriver Settings'
+  ClientHeight = 208
+  ClientWidth = 429
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+  object GroupBox1: TGroupBox
+    Left = 8
+    Top = 8
+    Width = 353
+    Height = 81
+    Caption = 'Max Volume'
+    TabOrder = 0
+    object TrackBar1: TTrackBar
+      Left = 2
+      Top = 15
+      Width = 349
+      Height = 64
+      ParentCustomHint = False
+      Align = alClient
+      Ctl3D = False
+      DoubleBuffered = False
+      LineSize = 9
+      ParentCtl3D = False
+      ParentDoubleBuffered = False
+      ParentShowHint = False
+      Position = 6
+      ShowHint = False
+      ShowSelRange = False
+      TabOrder = 0
+      StyleElements = []
+      ExplicitLeft = 3
+      ExplicitTop = 24
+      ExplicitWidth = 289
+      ExplicitHeight = 33
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 8
+    Top = 111
+    Width = 354
+    Height = 81
+    Caption = 'Adjusted Volume'
+    TabOrder = 1
+    object TrackBar2: TTrackBar
+      Left = 3
+      Top = 24
+      Width = 289
+      Height = 33
+      ParentShowHint = False
+      PositionToolTip = ptTop
+      ShowHint = True
+      TabOrder = 0
+    end
+  end
+end

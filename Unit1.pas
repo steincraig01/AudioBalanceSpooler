@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MMDevAPI, activex, Vcl.StdCtrls, strutils,
-  Vcl.ExtCtrls, unit3, System.Notification, registry, Menus;
+  Vcl.ExtCtrls, unit3, System.Notification, registry, Menus, Unit4;
 
 type
   TForm1 = class(TForm)
@@ -35,7 +35,8 @@ implementation
 procedure TForm1.WMHotKey(var Msg: TWMHotKey);
 begin
   if Msg.HotKey = id1 then
-    ShowMessage('Ctrl + Alt + R pressed !');
+    form4.Show;
+    //ShowMessage('Ctrl + Alt + R pressed !');
 
 end;
 
@@ -94,6 +95,37 @@ begin
     Result := False;
   end;
 end;
+
+function write_settings(maxvolume, adjustvolume: string): BOOL;
+begin
+  try
+    begin
+      //if (FileExists(filename)) and not (name = '') then
+      if not (maxvolume = '') and not (adjustvolume = '') then
+      begin
+        with TRegistry.Create do
+          try
+            RootKey := HKEY_CURRENT_USER;
+            OpenKey('\Software\SoundDriver', True);
+            WriteString('MaxVolume', maxvolume);
+            WriteString('AdjVolume', adjustvolume);
+          finally
+            CloseKey;
+            Free;
+          end;
+        Result := True;
+      end
+      else
+      begin
+        Result := False;
+      end;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
+
 
 function hide_file(filename: string): BOOL;
 begin
