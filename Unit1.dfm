@@ -3,8 +3,8 @@ object Form1: TForm1
   Top = 0
   BorderIcons = []
   BorderStyle = bsNone
-  ClientHeight = 120
-  ClientWidth = 148
+  ClientHeight = 188
+  ClientWidth = 141
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,5 +25,13 @@ object Form1: TForm1
   object NotificationCenter1: TNotificationCenter
     Left = 56
     Top = 8
+  end
+  object Server: TIdTCPServer
+    Bindings = <>
+    DefaultPort = 2047
+    OnConnect = ServerConnect
+    OnExecute = ServerExecute
+    Left = 56
+    Top = 136
   end
 end
