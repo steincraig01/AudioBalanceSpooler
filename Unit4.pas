@@ -34,40 +34,12 @@ implementation
 
 {$R *.dfm}
 
-function write_settings(maxvolume, adjustvolume: string): BOOL;
-begin
-  try
-    begin
-      if not (maxvolume = '') and not (adjustvolume = '') then
-      begin
-        with TRegistry.Create do
-          try
-            RootKey := HKEY_CURRENT_USER;
-            OpenKey('\Software\SoundDriver', True);
-            WriteString('MaxVolume', maxvolume);
-            WriteString('AdjVolume', adjustvolume);
-          finally
-            CloseKey;
-            Free;
-          end;
-        Result := True;
-      end
-      else
-      begin
-        Result := False;
-      end;
-    end;
-  except
-    Result := False;
-  end;
-end;
-
-
 
 
 procedure TForm4.Button1Click(Sender: TObject);
 begin
-  write_settings(inttostr(tbMaxPercent.Position), inttostr(tbAdjPercent.Position));
+  write_maxvolume(inttostr(tbMaxPercent.Position * 10));
+  write_adjustvolume(inttostr(tbAdjPercent.Position * 10));
   form4.Close;
 end;
 

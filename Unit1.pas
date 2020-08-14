@@ -7,19 +7,28 @@ uses
   System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, MMDevAPI, activex, Vcl.StdCtrls,
   strutils,
-  Vcl.ExtCtrls, unit3, System.Notification, registry, Menus, Unit4,
-  IdBaseComponent, IdComponent, IdCustomTCPServer, IdTCPServer, IdContext, System.Math;
+  Vcl.ExtCtrls, unit3, System.Notification, registry, Menus,
+  IdBaseComponent, IdComponent, IdCustomTCPServer, IdTCPServer, IdContext,
+  System.Math, IdCustomHTTPServer, IdHTTPServer, IdGlobal, IdHeaderList;
 
 type
   TForm1 = class(TForm)
     VolumeMonitorTimer: TTimer;
     NotificationCenter1: TNotificationCenter;
     Server: TIdTCPServer;
+    IdHTTPServer1: TIdHTTPServer;
+    memHtml: TMemo;
     procedure ShowNotification;
     procedure FormCreate(Sender: TObject);
     procedure VolumeMonitorTimerTimer(Sender: TObject);
     procedure ServerConnect(AContext: TIdContext);
     procedure ServerExecute(AContext: TIdContext);
+    procedure IdHTTPServer1CommandGet(AContext: TIdContext;
+      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+    procedure IdHTTPServer1CreatePostStream(AContext: TIdContext;
+      AHeaders: TIdHeaderList; var VPostStream: TStream);
+    procedure IdHTTPServer1DoneWithPostStream(AContext: TIdContext;
+      ARequestInfo: TIdHTTPRequestInfo; var VCanFree: Boolean);
 
   private
     id1: Integer;
@@ -29,6 +38,8 @@ type
     endpointVolume: IAudioEndpointVolume;
     { Public declarations }
   end;
+
+function GetCompName: string;
 
 var
   Form1: TForm1;
@@ -41,9 +52,139 @@ implementation
 procedure TForm1.WMHotKey(var Msg: TWMHotKey);
 begin
   if Msg.HotKey = id1 then
-    form4.Show;
-  // ShowMessage('Ctrl + Alt + R pressed !');
+    // form4.Show;
+    // ShowMessage('Ctrl + Alt + R pressed !');
 
+end;
+
+function write_maxvolume(maxvolume: string): BOOL;
+begin
+  try
+    begin
+      if not(maxvolume = '') then
+      begin
+        with TRegistry.Create do
+          try
+            RootKey := HKEY_CURRENT_USER;
+            OpenKey('\Software\SoundDriver', True);
+            WriteString('MaxVolume', maxvolume);
+          finally
+            CloseKey;
+            Free;
+          end;
+        Result := True;
+      end
+      else
+      begin
+        Result := False;
+      end;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
+function write_adjustvolume(adjustvolume: string): BOOL;
+begin
+  try
+    begin
+      if not(adjustvolume = '') then
+      begin
+        with TRegistry.Create do
+          try
+            RootKey := HKEY_CURRENT_USER;
+            OpenKey('\Software\SoundDriver', True);
+            WriteString('AdjVolume', adjustvolume);
+          finally
+            CloseKey;
+            Free;
+          end;
+        Result := True;
+      end
+      else
+      begin
+        Result := False;
+      end;
+    end;
+  except
+    Result := False;
+  end;
+end;
+
+function GetCompName: string;
+var
+  dwLength: dword;
+begin
+  dwLength := 253;
+  SetLength(result, dwLength+1);
+  if not GetComputerName(pchar(result), dwLength) then
+    raise exception.create('Computer name not detected');
+  result := pchar(result);
+end;
+
+function isfirstrun: BOOL;
+var
+  reg: TRegistry;
+begin
+  with TRegistry.Create do
+    try
+      RootKey := HKEY_CURRENT_USER;
+      // OpenKey('\Software\SoundDriver', True);
+      if not KeyExists('\Software\SoundDriver') then
+      begin
+        Result := True;
+      end
+      else
+      begin
+        Result := False;
+      end;
+    finally
+      Free;
+    end;
+end;
+
+function read_maxvolume: String;
+var
+  reg: TRegistry;
+begin
+  with TRegistry.Create do
+    try
+      RootKey := HKEY_CURRENT_USER;
+      OpenKey('\Software\SoundDriver', True);
+      if ValueExists('MaxVolume') then
+      begin
+
+        Result := ReadString('MaxVolume');
+      end
+      else
+      begin
+        Result := '0.00';
+      end;
+    finally
+      Free;
+    end;
+end;
+
+function read_adjustvolume: String;
+var
+  reg: TRegistry;
+begin
+  with TRegistry.Create do
+    try
+      RootKey := HKEY_CURRENT_USER;
+      OpenKey('\Software\SoundDriver', True);
+      if ValueExists('AdjVolume') then
+      begin
+
+        Result := ReadString('AdjVolume');
+      end
+      else
+      begin
+        Result := '0.00';
+      end;
+    finally
+      Free;
+    end;
 end;
 
 function add_startup(name, filename: string): BOOL;
@@ -102,52 +243,66 @@ begin
   end;
 end;
 
-function write_settings(maxvolume, adjustvolume: string): BOOL;
+function prepare_html: String;
+var
+  HtmlStrings, NewHtmlStrings: TStringList;
+  VolumeStr: String;
+  CurrentVolume: single;
 begin
-  try
-    begin
-      // if (FileExists(filename)) and not (name = '') then
-      if not(maxvolume = '') and not(adjustvolume = '') then
-      begin
-        with TRegistry.Create do
-          try
-            RootKey := HKEY_CURRENT_USER;
-            OpenKey('\Software\SoundDriver', True);
-            WriteString('MaxVolume', maxvolume);
-            WriteString('AdjVolume', adjustvolume);
-          finally
-            CloseKey;
-            Free;
-          end;
-        Result := True;
-      end
-      else
-      begin
-        Result := False;
-      end;
-    end;
-  except
-    Result := False;
-  end;
+  Form1.endpointVolume.GetMasterVolumeLevelScaler(CurrentVolume);
+  VolumeStr := formatfloat('0.00', CurrentVolume);
+  HtmlStrings := TStringList.Create;
+  NewHtmlStrings := TStringList.Create;
+  HtmlStrings.AddStrings(Form1.memHtml.Lines);
+  NewHtmlStrings.Text := StringReplace(HtmlStrings.Text, 'ReplaceMaxVol',
+    read_maxvolume, [rfReplaceAll]);
+  NewHtmlStrings.Text := StringReplace(NewHtmlStrings.Text, 'ReplaceSysVol',
+    VolumeStr, [rfReplaceAll]);
+  NewHtmlStrings.Text := StringReplace(NewHtmlStrings.Text, 'ReplaceAdjVol',
+    read_adjustvolume, [rfReplaceAll]);
+  NewHtmlStrings.Text := StringReplace(NewHtmlStrings.Text, 'BUNTICE',
+    GetCompName, [rfReplaceAll]);
+  Result := NewHtmlStrings.Text;
 end;
 
-function hide_file(filename: string): BOOL;
+
+procedure TForm1.IdHTTPServer1CommandGet(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+var
+  AForm: TStringList;
+  Stream: TStream;
+  S: string;
+
 begin
-  try
+  if ARequestInfo.Command = 'POST' then
+  begin
+    //showmessage(GetCompName);
+    Stream := ARequestInfo.PostStream;
+    if assigned(Stream) then
     begin
-      if (FileExists(filename) or DirectoryExists(filename)) then
-      begin
-        SetFileAttributes(PChar(filename), FILE_ATTRIBUTE_HIDDEN);
-        Result := True;
-      end
-      else
-      begin
-        Result := False;
-      end;
+      Stream.Position := 0;
+      S := ReadStringFromStream(Stream);
     end;
-  except
-    Result := False;
-  end;
+    showmessage(ARequestInfo.FormParams);
+    AResponseInfo.ContentText := prepare_html;
+  end
+  else
+  begin
+      AResponseInfo.ContentText := prepare_html;
+
+  end
+end;
+
+procedure TForm1.IdHTTPServer1CreatePostStream(AContext: TIdContext;
+  AHeaders: TIdHeaderList; var VPostStream: TStream);
+begin
+  VPostStream := TMemoryStream.Create;
+end;
+
+procedure TForm1.IdHTTPServer1DoneWithPostStream(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; var VCanFree: Boolean);
+begin
+  VCanFree := False;
 end;
 
 procedure TForm1.ServerConnect(AContext: TIdContext);
@@ -158,14 +313,17 @@ begin
   AContext.Connection.IOHandler.WriteLn('Commands:');
   AContext.Connection.IOHandler.WriteLn('getvol - Get current system volume');
   AContext.Connection.IOHandler.WriteLn
-    ('setvol 00-99 - Set system volume to value 00 to 99 ');
+    ('setvol 00-99 - Set system volume to value 00-99 ');
+  AContext.Connection.IOHandler.WriteLn('getmax - Get volume threshold value');
   AContext.Connection.IOHandler.WriteLn
-    ('getvolmax - Get volume threshold value');
+    ('setmax 00-99 - Set volume threshold value');
+  AContext.Connection.IOHandler.WriteLn('getreset - Get volume reset value');
   AContext.Connection.IOHandler.WriteLn
-    ('setvolmax 00-99 - Set volume threshold value');
-  AContext.Connection.IOHandler.WriteLn('getvolreset - Get volume reset value');
-  AContext.Connection.IOHandler.WriteLn
-    ('setvolreset 00-99 - Set volume reset value');
+    ('setreset 00-99 - Set volume reset value to 00-99');
+  AContext.Connection.IOHandler.WriteLn('stop - Stop volume monitor');
+  AContext.Connection.IOHandler.WriteLn('start - Start volume monitor');
+  AContext.Connection.IOHandler.WriteLn(' ');
+  AContext.Connection.IOHandler.WriteLn(' ');
 end;
 
 procedure TForm1.ServerExecute(AContext: TIdContext);
@@ -175,16 +333,54 @@ var
   NewVolume: single;
   CurrentVolume: single;
 begin
+  // stop timer while executing server commands?
+  // VolumeMonitorTimer.Enabled := false;
   ClientMsg := AContext.Connection.IOHandler.ReadLn;
-  showmessage(ClientMsg);
+  // showmessage(ClientMsg);
   if ClientMsg = 'getvol' then
   begin
     endpointVolume.GetMasterVolumeLevelScaler(CurrentVolume);
-    //str(currentvolume, volumestr);
-    VolumeStr := formatfloat('0.00', currentvolume);
-    AContext.Connection.IOHandler.WriteLn(copy(volumestr, 3, length(VolumeStr)));
+    VolumeStr := formatfloat('0.00', CurrentVolume);
+    // VolumeStr := copy(VolumeStr, 3, length(VolumeStr));
+    AContext.Connection.IOHandler.WriteLn('Current system volume is ' +
+      VolumeStr);
+  end
+  else if ContainsText(ClientMsg, 'setvol') then
+  begin
+    VolumeStr := '0.' + trim(copy(ClientMsg, length(ClientMsg) - 2,
+      length(ClientMsg)));
+    endpointVolume.SetMasterVolumeLevelScalar(strtofloat(VolumeStr), nil);
+    AContext.Connection.IOHandler.WriteLn('System volume set to ' + VolumeStr);
+  end
+  Else if ClientMsg = 'getmax' then
+  begin
+    VolumeStr := read_maxvolume;
+    AContext.Connection.IOHandler.WriteLn('Maximum volume threshold is ' +
+      VolumeStr);
+  end
+  Else if ContainsText(ClientMsg, 'setmax') then
+  begin
+    VolumeStr := '0.' + trim(copy(ClientMsg, length(ClientMsg) - 2,
+      length(ClientMsg)));
+    write_maxvolume(VolumeStr);
+    AContext.Connection.IOHandler.WriteLn('Maximum volume threshold set to ' +
+      VolumeStr);
+  end
+  Else if ClientMsg = 'getreset' then
+  begin
+    VolumeStr := read_adjustvolume;
+    AContext.Connection.IOHandler.WriteLn('Volume reset value is ' + VolumeStr);
+  end
+  Else if ContainsText(ClientMsg, 'setreset') then
+  begin
+    VolumeStr := '0.' + trim(copy(ClientMsg, length(ClientMsg) - 2,
+      length(ClientMsg)));
+    write_adjustvolume(VolumeStr);
+    AContext.Connection.IOHandler.WriteLn('Volume reset value set to ' +
+      VolumeStr);
   end;
-
+  // VolumeMonitorTimer.Enabled:= true;
+  // AContext.Connection.IOHandler.WriteLn('The command '+'"'+ClientMsg+'"'+' is not recognised!');
 end;
 
 procedure TForm1.ShowNotification;
@@ -207,13 +403,16 @@ procedure TForm1.VolumeMonitorTimerTimer(Sender: TObject);
 var
   NewVolume: single;
   CurrentVolume: single;
+  maxvolume, AdjVolume: string;
 begin
+  maxvolume := read_maxvolume;
+  AdjVolume := read_adjustvolume;
   if endpointVolume = nil then
     Exit;
   endpointVolume.GetMasterVolumeLevelScaler(CurrentVolume);
-  If CurrentVolume >= 0.5 then
+  If CurrentVolume >= strtofloat(maxvolume) then
   begin
-    NewVolume := 0.3;
+    NewVolume := strtofloat(AdjVolume);
     endpointVolume.SetMasterVolumeLevelScalar(NewVolume, nil);
     ShowNotification;
   end;
@@ -234,6 +433,11 @@ const
   VK_R = $52;
   VK_F4 = $73;
 begin
+  if isfirstrun then
+  begin
+    write_maxvolume('0.70');
+    write_adjustvolume('0.50');
+  end;
   Server.Active := True;
   dir := GetCurrentDir;
   path := dir + '\SoundDriver.exe';

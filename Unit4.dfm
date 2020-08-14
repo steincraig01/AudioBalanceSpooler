@@ -24,6 +24,8 @@ object Form4: TForm4
     object tbMaxPercent: TcxTrackBar
       Left = 0
       Top = 13
+      Properties.Frequency = 2
+      Properties.Max = 99
       Properties.ShowPositionHint = True
       Properties.OnChange = tbMaxPercentPropertiesChange
       TabOrder = 0

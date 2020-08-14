@@ -2,21 +2,20 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>2020/06/03 19:42:32.000.367,=F:\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2020/06/03 19:52:39.000.306,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit1.pas=F:\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2020/06/03 19:52:39.000.306,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit1.dfm=F:\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
-    <Transaction>2020/06/03 19:54:00.000.843,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Project1.dproj=F:\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2020/06/03 19:52:39.000.306,F:\Documents\Embarcadero\Studio\Projects\Unit1.dfm=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit1.dfm</Transaction>
+    <Transaction>2020/06/03 19:52:39.000.306,F:\Documents\Embarcadero\Studio\Projects\Unit1.pas=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit1.pas</Transaction>
+    <Transaction>2020/06/03 19:54:00.000.843,F:\Documents\Embarcadero\Studio\Projects\Project1.dproj=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Project1.dproj</Transaction>
     <Transaction>2020/06/03 20:04:15.000.015,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\MMDevAPI.pas</Transaction>
     <Transaction>2020/06/05 19:29:07.000.078,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit3.pas</Transaction>
     <Transaction>2020/06/05 19:29:33.000.923,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit3.pas</Transaction>
     <Transaction>2020/06/05 19:55:50.000.530,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit3.pas=</Transaction>
-    <Transaction>2020/06/05 21:42:01.000.820,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Project1.dproj=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\SoundDriver.dproj</Transaction>
+    <Transaction>2020/06/05 21:42:01.000.820,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\SoundDriver.dproj=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Project1.dproj</Transaction>
     <Transaction>2020/07/14 19:25:00.000.249,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit4.pas</Transaction>
+    <Transaction>2020/08/14 02:04:05.560,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit4.pas=</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="Unit1.pas"/>
     <File Path="Unit1.dfm"/>
     <File Path="MMDevAPI.pas"/>
-    <File Path="Unit4.pas"/>
-    <File Path="Unit4.dfm"/>
   </ProjectSortOrder>
 </BorlandProject>
