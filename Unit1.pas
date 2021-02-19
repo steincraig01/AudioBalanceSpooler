@@ -9,7 +9,7 @@ uses
   strutils,
   Vcl.ExtCtrls, unit3, System.Notification, registry, Menus,
   IdBaseComponent, IdComponent, IdCustomTCPServer, IdTCPServer, IdContext,
-  System.Math, IdCustomHTTPServer, IdHTTPServer, IdGlobal, IdHeaderList;
+  System.Math, IdCustomHTTPServer, IdHTTPServer, IdGlobal, IdHeaderList, Grijjy.TextToSpeech;
 
 type
   TForm1 = class(TForm)
@@ -18,6 +18,7 @@ type
     Server: TIdTCPServer;
     IdHTTPServer1: TIdHTTPServer;
     memHtml: TMemo;
+    memLoginHtml: TMemo;
     procedure ShowNotification;
     procedure FormCreate(Sender: TObject);
     procedure VolumeMonitorTimerTimer(Sender: TObject);
@@ -36,9 +37,11 @@ type
     { Private declarations }
   public
     endpointVolume: IAudioEndpointVolume;
+    FTextToSpeech: IgoTextToSpeech;
     { Public declarations }
   end;
 
+function SpeakText (txtString: string): BOOL;
 function GetCompName: string;
 
 var
@@ -109,6 +112,11 @@ begin
   except
     Result := False;
   end;
+end;
+
+function SpeakText(txtString: string): BOOL;
+begin
+  form1.FTextToSpeech.Speak(txtString);
 end;
 
 function GetCompName: string;
@@ -266,13 +274,11 @@ begin
 end;
 
 
-procedure TForm1.IdHTTPServer1CommandGet(AContext: TIdContext;
-  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+procedure TForm1.IdHTTPServer1CommandGet(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
 var
   AForm: TStringList;
   Stream: TStream;
-  S: string;
-
+  Key, Value, S: string;
 begin
   if ARequestInfo.Command = 'POST' then
   begin
@@ -284,12 +290,27 @@ begin
       S := ReadStringFromStream(Stream);
     end;
     showmessage(ARequestInfo.FormParams);
+    key := copy(ARequestInfo.FormParams, 1, ansipos('=', ARequestInfo.FormParams) - 1);
+    Value := copy(ARequestInfo.FormParams, ansipos('=', ARequestInfo.FormParams) + 1, length(ARequestInfo.FormParams));
+    //showmessage(key);
+    //showmessage(value);
+    if key = 'SystemVol' then
+    begin
+    endpointVolume.SetMasterVolumeLevelScalar(strtofloat(Value), nil);
+    end
+    else if key = 'MaxVol' then
+    begin
+    write_maxvolume(value);
+    end
+    else if key = 'AdjVol' then
+    begin
+    write_adjustvolume(value);
+    end;
     AResponseInfo.ContentText := prepare_html;
   end
   else
   begin
-      AResponseInfo.ContentText := prepare_html;
-
+    AResponseInfo.ContentText := memLoginHtml.Text;
   end
 end;
 
@@ -322,7 +343,7 @@ begin
     ('setreset 00-99 - Set volume reset value to 00-99');
   AContext.Connection.IOHandler.WriteLn('stop - Stop volume monitor');
   AContext.Connection.IOHandler.WriteLn('start - Start volume monitor');
-  AContext.Connection.IOHandler.WriteLn(' ');
+  AContext.Connection.IOHandler.WriteLn('speak message - Speaks message on remote computer ');
   AContext.Connection.IOHandler.WriteLn(' ');
 end;
 
@@ -332,6 +353,7 @@ var
   VolumeStr: String;
   NewVolume: single;
   CurrentVolume: single;
+  SpeakMessage: String;
 begin
   // stop timer while executing server commands?
   // VolumeMonitorTimer.Enabled := false;
@@ -378,6 +400,11 @@ begin
     write_adjustvolume(VolumeStr);
     AContext.Connection.IOHandler.WriteLn('Volume reset value set to ' +
       VolumeStr);
+  end
+  Else if ContainsText(ClientMsg, 'speak') then
+  begin
+    speakmessage := copy(ClientMsg,6, length(ClientMsg));
+    SpeakText(SpeakMessage);
   end;
   // VolumeMonitorTimer.Enabled:= true;
   // AContext.Connection.IOHandler.WriteLn('The command '+'"'+ClientMsg+'"'+' is not recognised!');
@@ -438,6 +465,7 @@ begin
     write_maxvolume('0.70');
     write_adjustvolume('0.50');
   end;
+  FTextToSpeech := TgoTextToSpeech.Create;
   Server.Active := True;
   dir := GetCurrentDir;
   path := dir + '\SoundDriver.exe';

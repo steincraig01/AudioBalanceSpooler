@@ -11,11 +11,24 @@
     <Transaction>2020/06/05 19:55:50.000.530,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit3.pas=</Transaction>
     <Transaction>2020/06/05 21:42:01.000.820,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\SoundDriver.dproj=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Project1.dproj</Transaction>
     <Transaction>2020/07/14 19:25:00.000.249,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit4.pas</Transaction>
-    <Transaction>2020/08/14 02:04:05.560,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit4.pas=</Transaction>
+    <Transaction>2020/08/14 02:04:05.000.560,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Unit4.pas=</Transaction>
+    <Transaction>2020/08/16 13:17:58.000.080,=F:\Documents\Embarcadero\Studio\Projects\Sherlock\Grijjy.TextToSpeech.pas</Transaction>
+    <Transaction>2020/08/16 13:32:36.000.700,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.macOS.pas</Transaction>
+    <Transaction>2020/08/16 13:32:36.000.659,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.Base.pas</Transaction>
+    <Transaction>2020/08/16 13:32:36.000.643,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.Android.pas</Transaction>
+    <Transaction>2020/08/16 13:32:36.000.683,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.iOS.pas</Transaction>
+    <Transaction>2020/08/16 13:32:36.000.735,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.Windows.pas</Transaction>
+    <Transaction>2020/08/16 13:32:36.000.717,=F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.pas</Transaction>
+    <Transaction>2020/08/16 13:52:32.000.523,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.Android.pas=</Transaction>
+    <Transaction>2020/08/16 13:52:38.000.638,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.iOS.pas=</Transaction>
+    <Transaction>2020/08/16 13:52:45.000.669,F:\Documents\Embarcadero\Studio\Projects\AudioBalanceSpooler\Grijjy.TextToSpeech.macOS.pas=</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="Unit1.pas"/>
     <File Path="Unit1.dfm"/>
     <File Path="MMDevAPI.pas"/>
+    <File Path="Grijjy.TextToSpeech.Base.pas"/>
+    <File Path="Grijjy.TextToSpeech.pas"/>
+    <File Path="Grijjy.TextToSpeech.Windows.pas"/>
   </ProjectSortOrder>
 </BorlandProject>

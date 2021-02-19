@@ -103,6 +103,9 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="MMDevAPI.pas"/>
+        <DCCReference Include="Grijjy.TextToSpeech.Base.pas"/>
+        <DCCReference Include="Grijjy.TextToSpeech.pas"/>
+        <DCCReference Include="Grijjy.TextToSpeech.Windows.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
